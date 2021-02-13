@@ -1,0 +1,34 @@
+#titre-container {
+    text-align:center;
+    padding:20px;
+}
+
+#titre {
+    font-size: 50px;
+    color: #e61f17;
+    text-transform: uppercase;
+}
+
+.competition {
+    text-align:center;
+    padding:20px;
+    margin:20px;
+    background-color:#d1d8d4;
+    border-radius:20px;
+}
+
+#page-container {
+    text-align:center;
+    font-size:25px;
+    margin-bottom:20px;
+}
+
+.page-active {
+    text-decoration:none;
+    color:black;
+}
+
+.page {
+    text-decoration:none;
+    color:#e61f17;
+}
