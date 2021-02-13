@@ -1,9 +1,21 @@
 <?php 
+$display_participant_nav = "none";
 $display_organizer_nav = "none";
 $display_connexion_nav = "auto";
+$display_notguest_nav = "auto";
 if($_SESSION["isConnected"] == "true"){
-	$display_organizer_nav = "auto";
-	$display_connexion_nav = "none";
+    if($_SESSION["connectedAs"]=="organisateur"){
+        $display_organizer_nav = "auto";
+        $display_connexion_nav = "none";
+    }elseif($_SESSION["connectedAs"]=="participant"){
+        $display_connexion_nav = "none";
+        $display_organizer_nav = "none";
+        $display_participant_nav = "auto";
+        $user = get_participant($_SESSION["id"]);
+        if($user["is_guest"]==1){
+            $display_notguest_nav = "none";
+        }
+    }
 }
 ?>
 
@@ -50,10 +62,19 @@ $(document).ready(function(){
 
         <ul class="nav navbar-nav ml-right " style="display:<?php echo $display_organizer_nav;?>">
             <li class="nav-item">
-                <a class="nav-link" href="/PPP/moncompte.php">MON COMPTE</a>
-            </li>
-            <li class="nav-item">
                 <a class="nav-link" href="/PPP/mescompetitions.php">MES COMPETITIONS</a>
+            </li>
+            <li class="nav-item" style="float:right;">
+                <a class="nav-link" href="#" data-toggle="modal" data-target="#deconnexion">DECONNEXION</a>
+            </li>
+        </ul>
+
+        <ul class="nav navbar-nav ml-right " style="display:<?php echo $display_participant_nav;?>">
+            <li class="nav-item">
+                <a class="nav-link" href="/PPP/competition.php">COMPETITION</a>
+            </li>
+            <li class="nav-item" style="display:<?php echo $display_notguest_nav;?>">
+                <a class="nav-link" href="/PPP/participer.php">PARTICIPER</a>
             </li>
             <li class="nav-item" style="float:right;">
                 <a class="nav-link" href="#" data-toggle="modal" data-target="#deconnexion">DECONNEXION</a>

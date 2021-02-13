@@ -31,13 +31,13 @@
     				$returned_code = signup($name,$email,$password);
     
     				if ($returned_code == 1) {
-    					$email_taken = "Adress email deja utilisée!";
+    					$email_taken = "Adress email deja utilisï¿½e!";
     					$signupFailed = "true";
     				}
     				if($returned_code == 2){
     					$_SESSION["isConnected"] = "true";
                         $_SESSION["id"] = get_org_id($email);
-                        $_SESSION["connected_as"] = "participant";
+                        $_SESSION["connectedAs"] = "organisateur";
     					header("Location: mescompetitions.php");
     				}
 			    }

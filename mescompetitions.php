@@ -6,11 +6,11 @@
 	if(!(isset($_SESSION["isConnected"]) and $_SESSION["isConnected"] == "true")){
 		$_SESSION["isConnected"] = "false";
 	}
-	if(!isset($_SESSION["connected_as"])){
-		$_SESSION["connected_as"] = "none";
+	if(!isset($_SESSION["connectedAs"])){
+		$_SESSION["connectedAs"] = "none";
 	}
 
-	if($_SESSION["isConnected"] == "false" or $_SESSION["connected_as"] != "organisateur") {header("Location: index.php");}
+	if($_SESSION["isConnected"] == "false" or $_SESSION["connectedAs"] != "organisateur") {header("Location: index.php");}
 
 	$modal_display = "false";
 	$name_err = $pass_err = $max_err = "";
@@ -76,7 +76,7 @@
 			</button>
 		</div>
 
-		<?php require 'generer_liste.php';?>
+		<?php require 'generer_liste_comp.php';?>
 
 	</div>
 		<!-- Modal - Supression competition -->
@@ -91,7 +91,7 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-dark" data-dismiss="modal">Non</button>
-						<button type="button" onclick="#" class="btn btn-danger">Oui</button>
+						<button type="button" class="btn btn-danger">Oui</button>
 					</div>
 				</div>
 			</div>
@@ -145,7 +145,7 @@
 
 						<div class="modal-footer">
 							<button type="button" class="btn btn-dark" data-dismiss="modal">Fermer</button>
-							<button type="submit" class="btn btn-danger">Créer une competition</button>
+							<button type="submit" class="btn btn-danger">CrÃ©er une competition</button>
 						</div>
 					</form>				  
 				</div>

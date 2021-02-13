@@ -6,8 +6,8 @@
             if(!(isset($_SESSION["isConnected"]) and $_SESSION["isConnected"] == "true")){
 	            $_SESSION["isConnected"] = "false";
             }
-            if(!isset($_SESSION["connected_as"])){
-		        $_SESSION["connected_as"] = "none";
+            if(!isset($_SESSION["connectedAs"])){
+		        $_SESSION["connectedAs"] = "none";
 	        }
 
             if($_SESSION["isConnected"] == "true") {header("Location: index.php");}
@@ -25,7 +25,7 @@
     				$returned_code = signin($email,$password);
     
     				if($returned_code == 1){
-    					$email_wrong = "Cet adress email n'est associee à aucun compte!";
+    					$email_wrong = "Cet adress email n'est associee Ã  aucun compte!";
     					$signinFailed = "true";
     				}
     				if ($returned_code == 2) {
@@ -36,7 +36,7 @@
     					//echo "Successfully signed in! Redirecting...";
     					$_SESSION["isConnected"] = "true";
                         $_SESSION["id"] = get_org_id($email);
-                        $_SESSION["connected_as"] = "organisateur";
+                        $_SESSION["connectedAs"] = "organisateur";
     					header("Location: mescompetitions.php");
     				}
 				}
@@ -88,6 +88,7 @@
             </div>
         </div>
     </div>
+    
 </body>
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-23581568-13"></script>

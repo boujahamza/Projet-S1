@@ -1,3 +1,4 @@
+<?php require 'SQLqueries.php';?>
 <?php
 //CHECK IF ALREADY SIGNED IN
 if(!isset($_SESSION)) {session_start();}
@@ -9,14 +10,16 @@ if(!isset($_SESSION["connected_as"])){
 		$_SESSION["connected_as"] = "none";
 }
 
+if($_SESSION["isConnected"] == "true") {header("Location: index.php");}
+
 if(!isset($_GET["guest"])){$_GET["guest"]=false;}
 
+$name_err = $id_err = "";
+$name_taken = "";
+$max_users_err = "";
+$no_such_comp_err = "";
 if($_SERVER["REQUEST_METHOD"]=="POST") {
     
-    $name_err = $id_err = "";
-    $name_taken = "";
-    $max_users_err = "";
-    $no_such_comp_err = "";
     $signin_failed = false;
 
     if($_POST["guest"]=="true"){
@@ -33,16 +36,17 @@ if($_SERVER["REQUEST_METHOD"]=="POST") {
         }
 
         if(!$signin_failed){
-            $returned = $add_participant($name, $id_comp, 1,"","");
+            $returned = add_participant($name, $id_comp, 1,"","");
             if($returned == 1){
-                $name_taken = "Ce pseudonyme existe deja dans cette competition!";
+                $name_taken = "Ce pseudonyme existe dÃ©jÃ  dans cette competition!";
             }elseif($returned == 3){
-                $max_users_err = "Cette competition a déjà le nombre maximal de participants!";
+                $max_users_err = "Cette competition a dÃ©jÃ  le nombre maximal de participants!";
             }elseif($returned == 4){
-                $no_such_comp_err = "Cette competition n'éxiste pas!";
+                $no_such_comp_err = "Cette competition n'Ã©xiste pas!";
             }elseif($returned == 5){
-                $_SESSION["id"] = get_user_id($name, $id_comp);
-                $_SESSION["connected_as"] = "participant";
+                $_SESSION["isConnected"] = "true";
+                $_SESSION["id"] = get_participant_id(1, $name, "", $id_comp);
+                $_SESSION["connectedAs"] = "participant";
                 header("Location: competition.php");
             }
         }    
@@ -71,7 +75,6 @@ if($_GET["guest"]){
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i" rel="stylesheet">
     <link rel="stylesheet" href="stylesheets/general.css">
     <link rel="stylesheet" href="stylesheets/participer.css">
 </head>
@@ -104,13 +107,13 @@ if($_GET["guest"]){
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="pseudonyme"><b>Pseudonyme</b></label>
-                            <input type="text" class="form-control" id="pseudonyme" required>
+                            <input type="text" class="form-control" id="pseudonyme" name="name" required>
                             <span class="error"><?php echo $name_err?></span>
                             <span class="error"><?php echo $name_taken?></span>
                         </div>
                         <div class="form-group">
                             <label for="id_comp"><b>Identificateur competition</b></label>
-                            <input type="text" class="form-control" id="id_comp" required>
+                            <input type="text" class="form-control" id="id_comp" name="id_comp" required>
                             <span class="error"><?php echo $id_err?></span>
                             <span class="error"><?php echo $max_users_err?></span>
                             <span class="error"><?php echo $no_such_comp_err?></span>
@@ -136,7 +139,7 @@ if($_GET["guest"]){
 				</div>
 
 				<div class="modal-body">
-					Vous n'allez pas pouvoir être notifié de votre progrès par email. Voulez-vous continuer?
+                    Si vous crÃ©ez un compte, les autres utilisateurs pourront communiquer avec vous par email. Voulez-vous continuer?
 				</div>
 
 				<div class="modal-footer">

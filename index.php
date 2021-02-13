@@ -1,4 +1,5 @@
 <?php
+require 'SQLqueries.php';
 //CHECK IF ALREADY SIGNED IN
 if(!isset($_SESSION)) {session_start();}
             
@@ -24,7 +25,6 @@ if(!isset($_SESSION["connected_as"])){
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
     <link rel="stylesheet" href="stylesheets/general.css">
-    <link rel="stylesheet" href="stylesheets/effect_steve.css">
 </head>
 
 <body>
@@ -107,35 +107,14 @@ if(!isset($_SESSION["connected_as"])){
                 </p>
             </div>
         </div>
-        <section class="team bg-light">
-            <div class="grid" style="height: 200;">
-                <figure class="effect-steve">
-                    <img src="images/team.jpg" class="image"  >
-                    <figcaption>
-                        <h2> <span>DO</span></h2>
-                        <p>Competition is a good thing , it forces us to do our best.</p>
-                    </figcaption>
-                </figure>
-                <figure class="effect-steve">
-                    <img src="images/useit.jpg" class="image">
-                    <figcaption>
-                        <h2><span>SOMETHING</span></h2>
-                        <p>Competition is a good thing , it forces us to do our best.</p>
-                    </figcaption>
-                </figure>
-                <figure class="effect-steve">
-                    <img src="images/challenge.jpg" class="image">
-                    <figcaption>
-                        <h2><span>GREAT</span></h2>
-                        <p>Competition is a good thing , it forces us to do our best.</p>
-                    </figcaption>
-                </figure>
-            </div>
-        </section>
     </div>
 
         
     <?php require 'footer.php';?>
 </body>
+
+<script>
+    
+</script>
 
 </html>

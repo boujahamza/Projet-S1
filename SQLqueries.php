@@ -133,6 +133,27 @@ function get_org_name($id){
 	return $row["name"];
 }
 
+function get_org_email($id){
+	//returns email associated with given id	
+
+	global $host,$username,$db_password,$db_name;
+
+	//Connecting to mysql database
+	$conn = mysqli_connect($host,$username,$db_password,$db_name);
+
+	// Check connection
+	if (!$conn) {
+	  die("Connection failed: " . mysqli_connect_error());
+	}
+	
+	$query = "SELECT email FROM organizer WHERE (id_org = '". $id . "')";
+	$email = mysqli_query($conn, $query);
+	mysqli_close($conn);
+
+	$row = mysqli_fetch_assoc($email);
+	return $row["email"];
+}
+
 function create_competition($id_org, $name, $type, $max, $password){
 	
 	global $host,$username,$db_password,$db_name;
@@ -150,8 +171,8 @@ function create_competition($id_org, $name, $type, $max, $password){
 	$has_pass = 1;
 	if(empty($password)){$has_pass = 0;}
 
-	$query = "INSERT INTO competition(id_org, name, type, max_users, has_pass, password) 
-	VALUES (".$id_org.",'".$name."','".$type."',".$max.",".$has_pass.",'".$password."')";
+	$query = "INSERT INTO competition(id_org, name, type, max_users, has_pass, password, is_closed) 
+	VALUES (".$id_org.",'".$name."','".$type."',".$max.",".$has_pass.",'".$password."', 0)";
 
 	mysqli_query($conn, $query);
 	mysqli_close($conn);
@@ -210,13 +231,16 @@ function delete_competition($id_comp){
 	  die("Connection failed: " . mysqli_connect_error());
 	}
 	
-	$query = "DELETE FROM competition WHERE (id_comp = '". $id_comp . "')";
-	mysqli_query($conn, $query);
+	
+	$query1 = "DELETE FROM users WHERE id_comp = '". $id_comp . "' and is_guest = 1";
+	$query2 = "DELETE FROM competition WHERE (id_comp = '". $id_comp . "')";
+	mysqli_query($conn, $query1);
+	mysqli_query($conn, $query2);
 	mysqli_close($conn);
 }
 
 function participants($id_comp){
-	//returns all participants associated with id_comp	
+	//returns all participants associated with id_comp (with has_access == 1)
 
 	global $host,$username,$db_password,$db_name;
 
@@ -228,7 +252,7 @@ function participants($id_comp){
 	  die("Connection failed: " . mysqli_connect_error());
 	}
 	
-	$query = "SELECT id_user, name FROM users WHERE (id_comp = '". $id_comp . "')";
+	$query = "SELECT * FROM users WHERE (id_comp = '". $id_comp . "' AND has_access = 1)";
 	$users = mysqli_query($conn, $query);
 	mysqli_close($conn);
 
@@ -270,18 +294,20 @@ function add_participant($name, $id_comp, $is_guest, $email, $password){
 	}
 
 	$has_access = 0;
-	if($is_guest == 1 or $row["has_pass"] == 0){
+	if($row["has_pass"] == 0){
 		$has_access = 1;
 	}
 
+	$password = password_hash($password, PASSWORD_DEFAULT);//Password hashing
+
 	$query1 = "SELECT name,email FROM users WHERE id_comp = '". $id_comp ."' AND name = '". $name ."'";
-	$query2 = "INSERT INTO users(id_comp,has_access,name,is_guest,password,email) 
-	VALUES ('".$id_comp."','".$has_access."','".$name."','".$is_guest."','".$password."','".$email."')"
+	$query2 = "INSERT INTO users(id_comp,has_access,name,is_guest,password,email,points) 
+	VALUES ('".$id_comp."','".$has_access."','".$name."','".$is_guest."','".$password."','".$email."',0)";
 	$name_email = mysqli_query($conn, $query1);
 
 	if(mysqli_num_rows($name_email) > 0){
 		while($row = mysqli_fetch_assoc($name_email)){
-			if($name == $row["name"]){
+			if($is_guest = 1 and $name == $row["name"]){
 				mysqli_close($conn);
 				return 1;
 			}
@@ -292,14 +318,108 @@ function add_participant($name, $id_comp, $is_guest, $email, $password){
 		}
 	}
 
-
+	mysqli_query($conn,$query2);
 
 	mysqli_close($conn);
 	return 5;
 }
 
-function get_participant_id($name,$id_comp) {
+function get_participant($id_user) {
+	//returns participant info based on id
 
+	global $host,$username,$db_password,$db_name;
+
+	//Connecting to mysql database
+	$conn = mysqli_connect($host,$username,$db_password,$db_name);
+
+	// Check connection
+	if (!$conn) {
+	  die("Connection failed: " . mysqli_connect_error());
+	}
+	
+	$query = "SELECT * FROM users WHERE id_user = '". $id_user . "'";
+
+	$user = mysqli_query($conn, $query);
+	mysqli_close($conn);
+
+	$row = mysqli_fetch_assoc($user);
+	return $row;
 }
 
+function get_participant_id($is_guest, $name, $email, $id_comp) {
+	//returns id of participant
+	//based on email or name depending on if guest or not
+
+	global $host,$username,$db_password,$db_name;
+
+	//Connecting to mysql database
+	$conn = mysqli_connect($host,$username,$db_password,$db_name);
+
+	// Check connection
+	if (!$conn) {
+	  die("Connection failed: " . mysqli_connect_error());
+	}
+	
+	if($is_guest == 1){
+		$query = "SELECT id_user FROM users WHERE name = '". $name . "' and id_comp = '".$id_comp."'";
+	}else{
+		$query = "SELECT id_user FROM users WHERE email = '". $email . "' and id_comp = '".$id_comp."'";
+	}
+
+	$id = mysqli_query($conn, $query);
+	mysqli_close($conn);
+
+	$row = mysqli_fetch_assoc($id);
+	return $row["id_user"];
+}
+
+function delete_participant($id_user){
+	//deletes participant associated with id_user	
+
+	global $host,$username,$db_password,$db_name;
+
+	//Connecting to mysql database
+	$conn = mysqli_connect($host,$username,$db_password,$db_name);
+
+	// Check connection
+	if (!$conn) {
+	  die("Connection failed: " . mysqli_connect_error());
+	}
+	
+	$user = get_participant($id_user);
+
+	if($user["is_guest"] == 1){
+		$query = "DELETE FROM users WHERE id_user = ".$id_user;
+	}else{
+		$query = "UPDATE users SET id_comp=-1 WHERE id_user = ".$id_user;
+	}
+
+	mysqli_query($conn, $query);
+	mysqli_close($conn);
+}
+
+function add_points($id_user,$num){
+	//Add num amount of points to user of id id_user
+	$num=adapt($num);
+	$id_user=adapt($id_user);
+	
+	global $host,$username,$db_password,$db_name;
+
+	//Connecting to mysql database
+	$conn = mysqli_connect($host,$username,$db_password,$db_name);
+
+	// Check connection
+	if (!$conn) {
+	  die("Connection failed: " . mysqli_connect_error());
+	}
+	
+	$user = get_participant($id_user);
+	$points = $user["points"];
+	$total = $points + $num;
+
+	$query = "UPDATE users SET points = ".$total." WHERE id_user = ".$id_user;
+
+	mysqli_query($conn, $query);
+	mysqli_close($conn);
+}
 ?>

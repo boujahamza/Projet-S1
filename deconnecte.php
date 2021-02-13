@@ -7,6 +7,7 @@
 	
 
 	$_SESSION["isConnected"] = "false";
+	$_SESSION["id"] = -1;
 	$_SESSION["connected_as"] = "none";
 	header("Location: index.php");
 ?>
