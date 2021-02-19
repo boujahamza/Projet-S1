@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@300;700&display=swap');
 
+.error {
+    color:red;
+}
 
 #slider {
     background-color: #2A2626;
