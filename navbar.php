@@ -41,28 +41,28 @@ $(document).ready(function(){
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="nav navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="/PPP/index.php">ACCUEIL <span class="sr-only">(current)</span></a>
+                <a class="nav-link" href="/index.php">ACCUEIL <span class="sr-only">(current)</span></a>
             </li>
         </ul>
 
         <ul class="nav navbar-nav ml-right " style="display:<?php echo $display_connexion_nav;?>">
             <li class="nav-item">
-                <a class="nav-link" href="/PPP/participer.php">PARTICIPER</a>
+                <a class="nav-link" href="/participer.php">PARTICIPER</a>
             </li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 ORGANISER
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                    <a class="dropdown-item" href="/PPP/connexion.php">CONNEXION</a>
-                    <a class="dropdown-item" href="/PPP/inscription.php">INSCRIPTION</a>
+                    <a class="dropdown-item" href="/connexion.php">CONNEXION</a>
+                    <a class="dropdown-item" href="/inscription.php">INSCRIPTION</a>
                 </div>
             </li>
         </ul>
 
         <ul class="nav navbar-nav ml-right " style="display:<?php echo $display_organizer_nav;?>">
             <li class="nav-item">
-                <a class="nav-link" href="/PPP/mescompetitions.php">MES COMPETITIONS</a>
+                <a class="nav-link" href="/mescompetitions.php">MES COMPETITIONS</a>
             </li>
             <li class="nav-item" style="float:right;">
                 <a class="nav-link" href="#" data-toggle="modal" data-target="#deconnexion">DECONNEXION</a>
@@ -71,10 +71,10 @@ $(document).ready(function(){
 
         <ul class="nav navbar-nav ml-right " style="display:<?php echo $display_participant_nav;?>">
             <li class="nav-item">
-                <a class="nav-link" href="/PPP/competition.php">COMPETITION</a>
+                <a class="nav-link" href="/competition.php">COMPETITION</a>
             </li>
             <li class="nav-item" style="display:<?php echo $display_notguest_nav;?>">
-                <a class="nav-link" href="/PPP/rejoindre.php">REJOINDRE</a>
+                <a class="nav-link" href="/rejoindre.php">REJOINDRE</a>
             </li>
             <li class="nav-item" style="float:right;">
                 <a class="nav-link" href="#" data-toggle="modal" data-target="#deconnexion">DECONNEXION</a>
