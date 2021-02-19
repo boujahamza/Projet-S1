@@ -12,7 +12,7 @@ if(!isset($_SESSION["connectedAs"])){
 
 if($_SESSION["isConnected"] == "false") {header("Location: index.php");}
 
-if($_SESSION["connectedAs"] == "participant"){
+if($_SESSION["connectedAs"] == "participant"){//If connected as participant, get all info
     $row_user = get_participant($_SESSION["id"]);
     $_GET["id_comp"] = $row_user["id_comp"];
 }
@@ -37,18 +37,22 @@ if($_GET["id_comp"] == -1){
         //if organizer doesn't have access to this competition
         header("Location: introuvable.php");
     }elseif($_SESSION["connectedAs"] == "participant"){
-        
         if($_GET["id_comp"] != $row_user["id_comp"]){
-            //if user doesn't have access to this competition
+            //if participant has different id_comp
             if($row_user["is_guest"] == 1){
                 $_SESSION["id"] = -1;
                 $_SESSION["isConnected"] = "false";
                 $_SESSION["connectedAs"] = "none";
             }
             header("Location: introuvable.php");
+        }else{
+            $user = get_participant($_SESSION["id"]);
+            if($user["has_access"] == 0){
+                //If participant has not yet given password
+                header("Location: mdp.php");
+            }
         }
     }
-
 }
 
 ?>
@@ -59,7 +63,7 @@ if($_GET["id_comp"] == -1){
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Organisation d'une competition</title>
+    <title><?php echo $row_comp["name"];?></title>
 
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
@@ -80,8 +84,13 @@ if($_GET["id_comp"] == -1){
 
         <div class="titre-container">
             <b class="titre"><?php echo $row_comp["name"];?></b><br>
+            <b>Organisé par <?php echo get_org_name($row_comp["id_org"]);?></b><br>
             <b>Identificateur: <?php echo $_GET["id_comp"];?></b><br>
-            <b>Email de l'organisateur: <?php echo get_org_email($row_comp["id_org"]);?></b>
+            <b>Email de l'organisateur: <?php echo get_org_email($row_comp["id_org"]);?></b><br>
+            <?php
+            if($row_comp["has_pass"]==1){
+                echo "<b>Mot de passe: ".$row_comp["password"]."</b>";
+            }?>
         </div>
         <div class="row">
             <div class="col-lg-3">
@@ -159,7 +168,7 @@ if($_GET["id_comp"] == -1){
     function changer_points(num){
         $.get(
             'changer_points.php',
-            'id_user='+current_selected+'&num='+num,
+            'id_user='+current_selected+'&id_comp='+<?php echo $_GET["id_comp"];?>+'&num='+num,
             update,
             'text'
         );

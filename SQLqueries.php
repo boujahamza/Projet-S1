@@ -91,6 +91,45 @@ function signin($email, $password){
 	
 }
 
+function signin_participant($email, $password){
+	//1 means email doesn't exist
+	//2 means password wrong
+	//3 means signup successful
+
+	global $host,$username,$db_password,$db_name;
+
+	//Connecting to mysql database
+	$conn = mysqli_connect($host,$username,$db_password,$db_name);
+
+	// Check connection
+	if (!$conn) {
+	  die("Connection failed: " . mysqli_connect_error());
+	}
+
+	$query = "SELECT email,password FROM users";
+	$email_password = mysqli_query($conn, $query);
+	mysqli_close($conn);
+
+	if (mysqli_num_rows($email_password) > 0) {
+		// go through names of each organizer
+		while($row = mysqli_fetch_assoc($email_password)) {
+			if($row["email"] == $email){
+				if(password_verify($password, $row["password"])){
+					return 3;
+				}else{
+					return 2;
+				}
+			}
+		}
+		return 1;
+	}else if(mysqli_num_rows($email_password) == 0){
+		return 1;
+	}
+
+	echo "Unexpected error";
+	
+}
+
 function get_org_id($email){
 	//returns id associated with given email	
 
@@ -154,7 +193,7 @@ function get_org_email($id){
 	return $row["email"];
 }
 
-function create_competition($id_org, $name, $type, $max, $password){
+function create_competition($id_org, $name, $max, $password){
 	
 	global $host,$username,$db_password,$db_name;
 
@@ -171,8 +210,8 @@ function create_competition($id_org, $name, $type, $max, $password){
 	$has_pass = 1;
 	if(empty($password)){$has_pass = 0;}
 
-	$query = "INSERT INTO competition(id_org, name, type, max_users, has_pass, password, is_closed) 
-	VALUES (".$id_org.",'".$name."','".$type."',".$max.",".$has_pass.",'".$password."', 0)";
+	$query = "INSERT INTO competition(id_org, name, max_users, has_pass, password) 
+	VALUES (".$id_org.",'".$name."',".$max.",".$has_pass.",'".$password."')";
 
 	mysqli_query($conn, $query);
 	mysqli_close($conn);
@@ -191,7 +230,7 @@ function get_all_competitions($id_org){
 	  die("Connection failed: " . mysqli_connect_error());
 	}
 	
-	$query = "SELECT id_comp, name, type, max_users, has_pass, password FROM competition WHERE (id_org = '". $id_org . "')";
+	$query = "SELECT * FROM competition WHERE (id_org = '". $id_org . "')";
 	$comps = mysqli_query($conn, $query);
 	mysqli_close($conn);
 
@@ -211,7 +250,7 @@ function get_competition($id_comp){
 	  die("Connection failed: " . mysqli_connect_error());
 	}
 	
-	$query = "SELECT id_org, name, type, max_users, has_pass, password FROM competition WHERE (id_comp = '". $id_comp . "')";
+	$query = "SELECT * FROM competition WHERE (id_comp = '". $id_comp . "')";
 	$comp = mysqli_query($conn, $query);
 	mysqli_close($conn);
 
@@ -277,8 +316,11 @@ function add_participant($name, $id_comp, $is_guest, $email, $password){
 	  die("Connection failed: " . mysqli_connect_error());
 	}
 	
+	
 	//Get targeted competition
 	$comp = get_competition($id_comp);
+	$row = mysqli_fetch_assoc($comp);
+
 	
 	if(mysqli_num_rows($comp) == 0){
 		//if no competitions are returned
@@ -286,7 +328,6 @@ function add_participant($name, $id_comp, $is_guest, $email, $password){
 		return 4;
 	}
 
-	$row = mysqli_fetch_assoc($comp);
 	if($row["max_users"] == mysqli_num_rows(participants($id_comp))){
 		//if competition has max users
 		mysqli_close($conn);
@@ -298,16 +339,26 @@ function add_participant($name, $id_comp, $is_guest, $email, $password){
 		$has_access = 1;
 	}
 
-	$password = password_hash($password, PASSWORD_DEFAULT);//Password hashing
 
-	$query1 = "SELECT name,email FROM users WHERE id_comp = '". $id_comp ."' AND name = '". $name ."'";
+	if($is_guest == 1){
+		$query1 = "SELECT name,email FROM users WHERE id_comp = '". $id_comp ."' AND name = '". $name ."'";
+	}else{
+		$query1 = "SELECT email FROM users WHERE email = '".$email."'";
+	}
+
+	if($password != ""){
+		$password = password_hash($password, PASSWORD_DEFAULT);//Password hashing
+	}
+	
+	
 	$query2 = "INSERT INTO users(id_comp,has_access,name,is_guest,password,email,points) 
 	VALUES ('".$id_comp."','".$has_access."','".$name."','".$is_guest."','".$password."','".$email."',0)";
+
 	$name_email = mysqli_query($conn, $query1);
 
 	if(mysqli_num_rows($name_email) > 0){
 		while($row = mysqli_fetch_assoc($name_email)){
-			if($is_guest = 1 and $name == $row["name"]){
+			if($is_guest == 1 and $name == $row["name"]){
 				mysqli_close($conn);
 				return 1;
 			}
@@ -318,7 +369,9 @@ function add_participant($name, $id_comp, $is_guest, $email, $password){
 		}
 	}
 
-	mysqli_query($conn,$query2);
+	if(!mysqli_query($conn,$query2)){
+		return 6;
+	}
 
 	mysqli_close($conn);
 	return 5;
@@ -346,7 +399,7 @@ function get_participant($id_user) {
 	return $row;
 }
 
-function get_participant_id($is_guest, $name, $email, $id_comp) {
+function get_participant_id($is_guest, $name, $email) {
 	//returns id of participant
 	//based on email or name depending on if guest or not
 
@@ -361,9 +414,9 @@ function get_participant_id($is_guest, $name, $email, $id_comp) {
 	}
 	
 	if($is_guest == 1){
-		$query = "SELECT id_user FROM users WHERE name = '". $name . "' and id_comp = '".$id_comp."'";
+		$query = "SELECT id_user FROM users WHERE name = '". $name . "' and is_guest = 1";
 	}else{
-		$query = "SELECT id_user FROM users WHERE email = '". $email . "' and id_comp = '".$id_comp."'";
+		$query = "SELECT id_user FROM users WHERE email = '". $email . "' and is_guest = 0";
 	}
 
 	$id = mysqli_query($conn, $query);
@@ -398,7 +451,7 @@ function delete_participant($id_user){
 	mysqli_close($conn);
 }
 
-function add_points($id_user,$num){
+function add_points($id_user,$id_comp,$num){
 	//Add num amount of points to user of id id_user
 	$num=adapt($num);
 	$id_user=adapt($id_user);
@@ -419,7 +472,93 @@ function add_points($id_user,$num){
 
 	$query = "UPDATE users SET points = ".$total." WHERE id_user = ".$id_user;
 
+	if($id_comp == $user["id_comp"]){
+		mysqli_query($conn, $query);
+	}
+	mysqli_close($conn);
+}
+
+function join_comp($id_user,$id_comp){
+	//change id_comp of user having id id_user
+	//1 means competition has max
+	//2 means no such competition
+	//3 means join successful
+	
+	global $host,$username,$db_password,$db_name;
+
+	//Connecting to mysql database
+	$conn = mysqli_connect($host,$username,$db_password,$db_name);
+
+	// Check connection
+	if (!$conn) {
+	  die("Connection failed: " . mysqli_connect_error());
+	}
+	
+	//Get targeted competition
+	$comp = get_competition($id_comp);
+	$row = mysqli_fetch_assoc($comp);
+
+	if(mysqli_num_rows($comp) == 0 or $row["id_comp"] == -1){
+		//if no competitions are returned
+		mysqli_close($conn);
+		return 2;
+	}
+
+	if($row["max_users"] == mysqli_num_rows(participants($id_comp))){
+		//if competition has max users
+		mysqli_close($conn);
+		return 1;
+	}
+
+
+	$has_access = 0;
+	if($row["has_pass"] == 0){
+		$has_access = 1;
+	}
+
+	$query = "UPDATE users SET id_comp = ".$id_comp.", has_access = '".$has_access."', points = 0 WHERE id_user = ".$id_user;
+
 	mysqli_query($conn, $query);
 	mysqli_close($conn);
+	return 3;
+}
+
+function check_password($password,$id_comp,$id_user){
+	//check if competition password is correct
+	//1 means no such comp
+	//2 means wrong pass
+	//3 means success
+	
+	global $host,$username,$db_password,$db_name;
+
+	//Connecting to mysql database
+	$conn = mysqli_connect($host,$username,$db_password,$db_name);
+
+	// Check connection
+	if (!$conn) {
+	  die("Connection failed: " . mysqli_connect_error());
+	}
+	
+	//Get targeted competition
+	$comp = get_competition($id_comp);
+	$row = mysqli_fetch_assoc($comp);
+
+	if(mysqli_num_rows($comp) == 0 or $row["id_comp"] == -1){
+		//if no such comp
+		mysqli_close($conn);
+		return 1;
+	}
+
+	if($row["password"] != $password){
+		//if wrong password
+		mysqli_close($conn);
+		return 2;
+	}
+
+	$query = "UPDATE users SET has_access = 1 WHERE id_user = ".$id_user;
+
+	mysqli_query($conn, $query);
+	mysqli_close($conn);
+	return 3;
 }
 ?>

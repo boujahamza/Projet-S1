@@ -1,7 +1,7 @@
 <?php
 	$comps = get_all_competitions($_SESSION["id"]);
-	
-	if(!isset($_GET["page"])){
+
+	if(!isset($_GET["page"]) or !is_numeric($_GET["page"])){
 		$page = 1;
 	}else{
 		$page = $_GET["page"];

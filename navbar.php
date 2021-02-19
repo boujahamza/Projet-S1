@@ -74,7 +74,7 @@ $(document).ready(function(){
                 <a class="nav-link" href="/PPP/competition.php">COMPETITION</a>
             </li>
             <li class="nav-item" style="display:<?php echo $display_notguest_nav;?>">
-                <a class="nav-link" href="/PPP/participer.php">PARTICIPER</a>
+                <a class="nav-link" href="/PPP/rejoindre.php">REJOINDRE</a>
             </li>
             <li class="nav-item" style="float:right;">
                 <a class="nav-link" href="#" data-toggle="modal" data-target="#deconnexion">DECONNEXION</a>

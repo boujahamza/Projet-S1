@@ -1,3 +1,4 @@
+<?php require "SQLqueries.php";?>
 <?php
 //CHECK IF ALREADY SIGNED IN
 if(!isset($_SESSION)) {session_start();}

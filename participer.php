@@ -6,8 +6,8 @@ if(!isset($_SESSION)) {session_start();}
 if(!(isset($_SESSION["isConnected"]) and $_SESSION["isConnected"] == "true")){
 	$_SESSION["isConnected"] = "false";
 }
-if(!isset($_SESSION["connected_as"])){
-		$_SESSION["connected_as"] = "none";
+if(!isset($_SESSION["connectedAs"])){
+		$_SESSION["connectedAs"] = "none";
 }
 
 if($_SESSION["isConnected"] == "true") {header("Location: index.php");}
@@ -20,7 +20,7 @@ $max_users_err = "";
 $no_such_comp_err = "";
 if($_SERVER["REQUEST_METHOD"]=="POST") {
     
-    $signin_failed = false;
+    $guest_join_failed = false;
 
     if($_POST["guest"]=="true"){
         $name = $_POST["name"];
@@ -28,25 +28,33 @@ if($_SERVER["REQUEST_METHOD"]=="POST") {
 
         if(empty($name)){
             $name_err= "Vous devez saisir un pseudonyme! <br>";
-            $signin_failed = true;
+            $guest_join_failed = true;
+        }elseif(strlen($name)>31){
+            $name_err = "Pseudonyme trop long! (maximum 31 caractères) <br>";
+            $guest_join_failed = "true";
+        }elseif(!preg_match("/^[0-9a-zA-Z-' ]*$/",$name)) {
+            //Use RegEx to check for characters in name
+            $name_err = "Le pseudonyme peut seulement contenir des lettres, des nombres et des espaces! <br>";
+            $guest_join_failed = "true";
         }
-        if(empty($id_comp)){
-            $id_err= "Vous devez saisir un identificateur! <br>";
-            $signin_failed = true;
+        if(empty($id_comp) or !is_numeric($id_comp)){
+            $id_err= "Vous devez saisir un identificateur valide! <br>";
+            $guest_join_failed = true;
         }
 
-        if(!$signin_failed){
+        if(!$guest_join_failed){
             $returned = add_participant($name, $id_comp, 1,"","");
             if($returned == 1){
-                $name_taken = "Ce pseudonyme existe déjà dans cette competition!";
+                $name_err = "Ce pseudonyme existe déjà dans cette competition!";
             }elseif($returned == 3){
-                $max_users_err = "Cette competition a déjà le nombre maximal de participants!";
+                $id_err = "Cette competition a déjà le nombre maximal de participants!";
             }elseif($returned == 4){
-                $no_such_comp_err = "Cette competition n'éxiste pas!";
+                $id_err = "Cette competition n'éxiste pas!";
             }elseif($returned == 5){
                 $_SESSION["isConnected"] = "true";
-                $_SESSION["id"] = get_participant_id(1, $name, "", $id_comp);
+                $_SESSION["id"] = get_participant_id(1, $name, "");
                 $_SESSION["connectedAs"] = "participant";
+                $_SESSION["isGuest"] = 1;
                 header("Location: competition.php");
             }
         }    
@@ -91,8 +99,8 @@ if($_GET["guest"]){
 
         <div class="row" style="display:<?php echo $choice_display;?>">
             <div class="col-md-6 choice" style="background-image: url(images/participer_1.jpg);">
-                <a class="lien" href="#">CREER UN COMPTE</a><br>
-                <a class="lien" style="font-size: 25px;text-decoration:underline" href="#">ou connecter-vous</a>
+                <a class="lien" href="inscription.php?as=participant">CREER UN COMPTE</a><br>
+                <a class="lien" style="font-size: 25px;text-decoration:underline" href="connexion.php?as=participant">ou connecter-vous</a>
             </div>
             <div class="col-md-6 choice" style="background-image: url(images/participer_2.jpg);">
                 <a class="lien" href="#" data-toggle="modal" data-target="#participer">PARTICIPER SANS VOUS CONNECTER</a>
@@ -109,14 +117,11 @@ if($_GET["guest"]){
                             <label for="pseudonyme"><b>Pseudonyme</b></label>
                             <input type="text" class="form-control" id="pseudonyme" name="name" required>
                             <span class="error"><?php echo $name_err?></span>
-                            <span class="error"><?php echo $name_taken?></span>
                         </div>
                         <div class="form-group">
                             <label for="id_comp"><b>Identificateur competition</b></label>
                             <input type="text" class="form-control" id="id_comp" name="id_comp" required>
                             <span class="error"><?php echo $id_err?></span>
-                            <span class="error"><?php echo $max_users_err?></span>
-                            <span class="error"><?php echo $no_such_comp_err?></span>
                         </div>
                     </div>
                     <div class="col-md-4"></div>

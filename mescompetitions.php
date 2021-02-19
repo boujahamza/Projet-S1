@@ -10,10 +10,11 @@
 		$_SESSION["connectedAs"] = "none";
 	}
 
+	//if not connected or not organizer, go to index
 	if($_SESSION["isConnected"] == "false" or $_SESSION["connectedAs"] != "organisateur") {header("Location: index.php");}
 
 	$modal_display = "false";
-	$name_err = $pass_err = $max_err = "";
+	$name_err = $password_err = $max_err = "";
 	//Form validation
 	if($_SERVER["REQUEST_METHOD"]=="POST"){
 		$create_failed = false;
@@ -21,12 +22,28 @@
 		$name = adapt($_POST["name"]);
 		$password = adapt($_POST["password"]);
 		$max = adapt($_POST["max-users"]);
-		$type = $_POST["type"];
 
 		if(empty($name)){
 			$name_err = "Vous devez inserer un nom!";
 			$create_failed = true;
+		}elseif(strlen($name)>31){
+			$name_err = "Nom trop long! (maximum 31 caractères)";
+			$create_failed = "true";
+		}elseif(!preg_match("/^[0-9a-zA-Z-' ]*$/",$name)) {
+			//Use RegEx to check for characters in name
+			$name_err = "Le nom peut seulement contenir des lettres, des nombres et des espaces!";
+			$create_failed = true;
 		}
+
+		if(strlen($password)>255){
+			$password_err = "Mot de passe trop long! (maximum 255 caractères)";
+			$create_failed = "true";
+		}elseif(!preg_match("/^[0-9a-zA-Z-' ]*$/",$password)) {
+			//Use RegEx to check for characters in password (it's stored in plaintext)
+			$password_err = "Le mot de passe peut seulement contenir des lettres, des nombres et des espaces!";
+			$create_failed = true;
+		}
+
 		if(empty($max) or $max < 1){
 			$max_err = "Nombre invalide!";
 			$create_failed = true;
@@ -35,7 +52,7 @@
 		if($create_failed){
 			$modal_display = "true";
 		}else{
-			create_competition($_SESSION["id"], $name, $type, $max, $password);
+			create_competition($_SESSION["id"], $name, $max, $password);
 			header("Location: mescompetitions.php");
 		}
 	}
@@ -121,24 +138,13 @@
 							<div class="form-group">
 								<label for="password"><b>Mot de passe (Facultatif):</b></label>
 								<input type="text" class="form-control" id="password-input" name="password">
+								<span class="error"><?php echo $password_err;?></span>
 							</div>
 
 							<div class="form-group">
-								<label for="max-users"><b>Maximum players:</b></label><br>
+								<label for="max-users"><b>Nombre de participants max:</b></label><br>
 								<input type="number" class="form-control" id="max-users" name="max-users" min="1" value="30" required>
 								<span class="error"><?php echo $max_err?></span>
-							</div>
-
-							<div class="form-group">
-								<label for="type"><b>Type:</b></label><br>
-								<div class="form-check form-check-inline">
-									<input class="form-check-input" type="radio" id="type1" name="type" value="type1" checked>
-									<label class="form-check-label" for="yes">Type 1</label>
-								</div>
-								<div class="form-check form-check-inline">
-									<input class="form-check-input" type="radio" id="type2" name="type" value="type2">
-									<label class="form-check-label" for="no">Type 2</label>
-								</div>
 							</div>
 
 						</div>
