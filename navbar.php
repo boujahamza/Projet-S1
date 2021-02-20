@@ -32,7 +32,7 @@ $(document).ready(function(){
 <div style="height:70px;"></div>
 
 <nav class="navbar fixed-top navbar-expand-lg navbar-dark shadow-lg p-3 mb-5" style="background-color:gray;">
-    <a class="navbar-brand" href="index.php">COMPANY NAME</a>
+    <a class="navbar-brand" href="index.php">GloryLine</a>
     
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
