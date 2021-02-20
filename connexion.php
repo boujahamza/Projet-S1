@@ -99,7 +99,7 @@
 
 <body>
     
-    <h1 class="logo"><a href="index.php">COMPANY NAME</a></h1>
+    <h1 class="logo"><a href="index.php">GloryLine</a></h1>
 
     <div class="page-wrapper bg-red p-t-180 p-b-100">
         <div class="wrapper wrapper--w960">
