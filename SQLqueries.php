@@ -410,7 +410,7 @@ function get_participant($id_user) {
 	return $row;
 }
 
-function get_participant_id($is_guest, $name, $email) {
+function get_participant_id($is_guest, $name, $email,$id_comp=-1) {
 	//returns id of participant
 	//based on email or name depending on if guest or not
 
@@ -425,7 +425,7 @@ function get_participant_id($is_guest, $name, $email) {
 	}
 	
 	if($is_guest == 1){
-		$query = "SELECT id_user FROM users WHERE name = '". $name . "' and is_guest = 1";
+		$query = "SELECT id_user FROM users WHERE name = '". $name . "' and is_guest = 1 and id_comp =".$id_comp;
 	}else{
 		$query = "SELECT id_user FROM users WHERE email = '". $email . "' and is_guest = 0";
 	}
