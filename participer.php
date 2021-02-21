@@ -52,7 +52,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST") {
                 $id_err = "Cette competition n'éxiste pas!";
             }elseif($returned == 5){
                 $_SESSION["isConnected"] = "true";
-                $_SESSION["id"] = get_participant_id(1, $name, "");
+                $_SESSION["id"] = get_participant_id(1, $name, "",$id_comp);
                 $_SESSION["connectedAs"] = "participant";
                 $_SESSION["isGuest"] = 1;
                 header("Location: competition.php");
