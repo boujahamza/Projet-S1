@@ -258,7 +258,8 @@ function get_competition($id_comp){
 }
 
 function delete_competition($id_comp){
-	//deletes competition associated with id_comp	
+	//deletes competition associated with id_comp
+	
 
 	global $host,$username,$db_password,$db_name;
 
@@ -269,12 +270,22 @@ function delete_competition($id_comp){
 	if (!$conn) {
 	  die("Connection failed: " . mysqli_connect_error());
 	}
-	
-	
+
+	//assigns all participants to id_comp == -1
+	$participants = participants($id_comp);
+
+	if(mysqli_num_rows($participants) > 0){
+		while($row = mysqli_fetch_assoc($participants)){
+			delete_participant($row["id_user"]);
+		}
+	}	
+
 	$query1 = "DELETE FROM users WHERE id_comp = '". $id_comp . "' and is_guest = 1";
 	$query2 = "DELETE FROM competition WHERE (id_comp = '". $id_comp . "')";
+
 	mysqli_query($conn, $query1);
 	mysqli_query($conn, $query2);
+	echo mysqli_error($conn);
 	mysqli_close($conn);
 }
 
