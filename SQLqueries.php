@@ -3,7 +3,7 @@
 $host = "localhost";
 $username = "root";
 $db_password = "";
-$db_name = "boujastuff";
+$db_name = "gloryline";
 
 function adapt($data){
 	$data = trim($data);
